@@ -1,0 +1,78 @@
+#include <DHT.h>
+
+// Initialize sensors
+DHT dht(4, DHT11);  // DHT11 sensor connected to pin 4
+int tdsPin = A0;
+int pHMeterPin = A1;
+int lightIntensityPin = A2;
+int buzzerPin = 7;
+int waterLevelPin = 2;      // Digital water level sensor connected to pin 2
+int waterTempPin = A3;      // Digital water temperature sensor connected to analog pin A3
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(waterLevelPin, INPUT);
+}
+
+void loop() {
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  
+  // Read other sensor values
+  int tdsValue = analogRead(tdsPin);
+  int pHValue = analogRead(pHMeterPin);
+  int lightIntensity = analogRead(lightIntensityPin);
+  int waterTemp = analogRead(waterTempPin); // Read the digital water temperature sensor
+
+  int waterLevel = digitalRead(waterLevelPin); // Read the digital water level sensor
+
+  // Initialize a flag to track conditions
+  boolean conditionsMet = true;
+
+  // Check and display each condition
+  if (temperature < 20 || temperature > 100) {
+    Serial.println("ALERT: Temperature out of range!");
+    conditionsMet = false;
+  }
+  
+  if (humidity < 100 || humidity >200) {
+    Serial.println("ALERT: Humidity out of range!");
+    conditionsMet = false;
+  }
+  
+  if (tdsValue < 300 || tdsValue > 800) {
+    Serial.println("ALERT: TDS value out of range!");
+    conditionsMet = false;
+  }
+  
+  if (waterLevel == LOW) {
+    Serial.println("ALERT: Water level is low!");
+    conditionsMet = false;
+  }
+  
+ if (pHValue < 0|| pHValue > 4) {
+    Serial.println("ALERT: pH value out of range!");
+    conditionsMet = false;*/
+  }
+  
+  if (lightIntensity < 50) {
+    Serial.println("ALERT: Light intensity is too low!");
+    conditionsMet = false;
+  }
+
+  if (waterTemp < 10 || waterTemp > 300) {
+    Serial.println("ALERT: Water temperature out of range!");
+    conditionsMet = false;
+  }
+
+  // Sound the buzzer if any condition is not met
+  if (!conditionsMet) {
+    digitalWrite(buzzerPin, HIGH);
+  } else {
+    digitalWrite(buzzerPin, LOW);
+  }
+
+  delay(1000); // Adjust delay as needed
+}
